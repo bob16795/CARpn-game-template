@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="EN-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <title>CARPN TEMPLATE</title>
+
+    <style>
+        body {
+            margin: 0px;
+            background-color: #000000;
+            color: #ffffff;
+        }
+        h1 {
+            width: 100%;
+            text-align: center;
+            padding: 0;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+        canvas.emscripten {
+            padding: 0;
+            margin: auto;
+            display: block;
+            width: 640px;
+            height: 480px;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+    </style>
+    </head>
+    <body>
+        <h1>CARPN TEMPLATE</h1>
+        <canvas class=emscripten id=canvas oncontextmenu=event.preventDefault() tabindex=-1></canvas>
+        <script>
+            var Module = {
+                print: (function() {
+                    var element = document.getElementById('output');
+                    if (element) element.value = ''; // clear browser cache
+                    return function(text) {
+                        if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+                        console.log(text);
+                        if (element) {
+                          element.value += text + "\n";
+                          element.scrollTop = element.scrollHeight; // focus on bottom
+                        }
+                    };
+                })(),
+                canvas: (function() {
+                    var canvas = document.getElementById('canvas');
+                    return canvas;
+                })()
+            };
+        </script>
+        {{{ SCRIPT }}}
+    </body>
+</html>

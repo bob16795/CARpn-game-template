@@ -1,0 +1,22 @@
+import "engine/utils/graphics.car"
+import "engine/utils/input.car"
+import "engine/utils/audio.car"
+
+fntype proc loopfn : void
+extern proc emscripten_set_main_loop loopfn : void
+
+global gctx GFXContext*
+
+def proc loop : void {
+  gctx@ GFXContext.swap
+}
+
+def proc main : i32 {
+  gctx GFXContext.init =
+  gctx@ Input.init
+  Audio.init
+
+  (loop) emscripten_set_main_loop
+
+  0
+}

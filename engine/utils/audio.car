@@ -1,0 +1,131 @@
+global audioInstance void*
+
+extern proc alcGetString void* i32 : u8$*
+extern proc alcOpenDevice void* : void*
+extern proc alcCreateContext void* void* : void*
+extern proc alcMakeContextCurrent void* : bool
+extern proc alBufferData i32 i32 void* i32 i32 : void
+extern proc alGenSources i32 i32* : void
+extern proc alGenBuffers i32 i32* : void
+extern proc alSourcei i32 i32 i32 : void
+extern proc alSourcePlay i32 : void
+
+const ALC_DEFAULT_DEVICE_SPECIFIER 4100
+const AL_LOOPING 4103
+const AL_BUFFER 4105
+const AL_FORMAT_STEREO16 4355
+
+struct WavFile {
+  void* data
+  i32 size
+  i32 freq
+  i16 channels
+
+  def proc parse u8$* : WavFile {
+    => path
+
+    WavFile result
+    
+    path "r" File.open => fptr
+
+    u8 [4] chunkID
+    u8 [4] format
+    u8 [4] subChunk1ID
+    u16 audioFormat
+    u16 numChannels
+    u32 sampleRate
+    u8 [4] subChunk2ID
+    u32 subChunk2Size
+    u8$* data
+
+    fptr 4 chunkID File.read
+    fptr 4 File.seek
+    fptr 4 format File.read
+    fptr 4 subChunk1ID File.read
+    fptr 4 File.seek
+    fptr 2 audioFormat u8$*' File.read
+    fptr 2 numChannels u8$*' File.read
+    fptr 4 sampleRate u8$*' File.read
+    fptr 4 File.seek
+    fptr 2 File.seek
+    fptr 2 File.seek
+    fptr 4 subChunk2ID File.read
+
+    fptr 4 subChunk2Size u8$*' File.read
+
+    data subChunk2Size@ malloc =
+    fptr subChunk2Size@ data@ File.read
+
+    result.channels numChannels@ =
+    result.size subChunk2Size@ =
+    result.freq sampleRate@ =
+    result.data data@ =
+
+    fptr File.close
+
+    result@
+  }
+}
+
+struct Song {
+  bool hasIntro
+  f32 loop
+  i32 length
+
+  i32 loopBuffer
+  i32 introbuffer
+
+  def proc new u8$* f32 : Song {
+    Song result
+
+    => loop
+    => path
+
+    WavFile wav
+    
+    wav path WavFile.parse =
+
+    1 result.loopBuffer alGenBuffers
+    result.loopBuffer@ AL_FORMAT_STEREO16 wav.data@ wav.size@ wav.freq@ alBufferData
+
+    result@
+  }
+}
+
+struct Audio {
+  void* device
+  void* ctx
+
+  i32 musicSource
+  i32 [30] soundSources
+
+  f32 volume
+
+  def proc instance : Audio* {
+    audioInstance@ Audio*'
+  }
+
+  def proc playSong Song* : void {
+    => song
+    
+    Audio.instance.musicSource@ AL_BUFFER song.loopBuffer@ alSourcei
+    Audio.instance.musicSource@ AL_LOOPING 1 alSourcei
+    Audio.instance.musicSource@ alSourcePlay
+  }
+
+  def proc init : void {
+    audioInstance Audio.SIZE i32' malloc =
+
+    null ALC_DEFAULT_DEVICE_SPECIFIER alcGetString => deviceName
+
+    Audio.instance.device deviceName alcOpenDevice =
+    Audio.instance.ctx Audio.instance.device@ null alcCreateContext =
+
+    Audio.instance.ctx@ alcMakeContextCurrent disc
+
+    1 Audio.instance.musicSource alGenSources
+    30 Audio.instance.soundSources [0] alGenSources
+
+    Audio.instance.volume 0.0 =
+  }
+}
