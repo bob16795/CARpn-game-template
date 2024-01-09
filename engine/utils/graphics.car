@@ -79,7 +79,7 @@ struct GFXContext {
 
     result.bg.r 0.0 =
     result.bg.g 0.0 =
-    result.bg.b 0.05 =
+    result.bg.b 0.0 =
     result.bg.a 1.0 =
 
     "init gfx" printline
