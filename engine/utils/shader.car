@@ -37,6 +37,10 @@ struct Shader {
     result @
   }
 
+  def proc use Shader* : void {
+    .id@ glUseProgram
+  }
+
   def proc setSize Shader* Vec2 : void {
     # TODO append shader
     Mat4 proj

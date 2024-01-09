@@ -1,13 +1,85 @@
 import "engine/utils/graphics.car"
 import "engine/utils/input.car"
 import "engine/utils/audio.car"
+import "engine/gfx/sprite.car"
+
+def proc getTexShaders : ShaderFile$* {
+  ShaderFile$* result
+
+  result ShaderFile.SIZE i32' 2 calloc =
+
+  result@[0].contents u8$*$*.SIZE i32' 1 calloc =
+  result@[0].kind 35633 =
+  result@[0].count 1 =
+  result@[0].contents@ u8$**'
+  "
+precision highp float;
+attribute vec3 aVertex;
+attribute vec2 aTexCoords;
+attribute vec4 aColor;
+uniform mat4 projection;
+varying vec2 texCoords;
+varying vec4 tintColor;
+void main()
+{
+    gl_Position = projection * vec4(aVertex.xyz, 1.0);
+    texCoords = aTexCoords;
+    tintColor = aColor;
+}" =
+
+  result@[1].contents u8$*$*.SIZE i32' 1 calloc =
+  result@[1].kind 35632 =
+  result@[1].count 1 =
+  result@[1].contents@ u8$**'
+  "
+precision highp float;
+
+varying vec2 texCoords;
+varying vec4 tintColor;
+
+uniform sampler2D tex;
+
+void main() {
+  gl_FragColor = tintColor * texture2D(tex, texCoords);
+}" =
+
+  result@
+}
+
+const WIDTH 640.0
+const HEIGHT 480.0
 
 fntype proc loopfn : void
 extern proc emscripten_set_main_loop loopfn : void
 
 global gctx GFXContext*
+global gspr Sprite
+global gshd Shader*
+global gtex Texture*
+global pos Vec2
+global vel Vec2
 
 def proc loop : void {
+  gctx@ GFXContext.clear
+  pos pos@ vel@ Vec2.add =
+
+  pos.x@ 100.0 + WIDTH > if {
+    vel.x vel.x@ -1.0 * =
+  }
+
+  pos.x@ 0.0 < if {
+    vel.x vel.x@ -1.0 * =
+  }
+  
+  pos.y@ 0.0 < if {
+    vel.y vel.y@ -1.0 * =
+  }
+
+  pos.y@ 100.0 + HEIGHT > if {
+    vel.y vel.y@ -1.0 * =
+  }
+
+  gspr pos.x@ pos.y@ 100.0 100.0 Rect.new gshd@ Sprite.draw
   gctx@ GFXContext.swap
 }
 
@@ -15,6 +87,19 @@ def proc main : i32 {
   gctx GFXContext.init =
   gctx@ Input.init
   Audio.init
+
+  gshd getTexShaders 2 Shader.new =
+  gshd@ WIDTH HEIGHT Vec2.new Shader.setSize
+
+  3042 glEnable
+  770 771 glBlendFunc
+
+  gtex "logo.png" Texture.new =
+
+  vel 1.0 1.0 Vec2.new =
+  pos 0.0 0.0 Vec2.new =
+
+  gspr 0.0 0.0 1.0 1.0 Rect.new gtex@ Sprite.new =
 
   (loop) emscripten_set_main_loop
 

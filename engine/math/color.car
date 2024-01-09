@@ -16,19 +16,16 @@ struct Color {
     }
 
     def proc mix Color Color f32 : Color {
-      f32 pc
-      Color a
-      Color b
       Color result
 
-      pc swap =
-      b swap =
-      a swap =
+      => pc
+      => b
+      => a
 
-      result.r a.r@ pc@ * b.r@ 1.0 pc@ - * + =
-      result.g a.g@ pc@ * b.g@ 1.0 pc@ - * + =
-      result.b a.b@ pc@ * b.b@ 1.0 pc@ - * + =
-      result.a a.a@ pc@ * b.a@ 1.0 pc@ - * + =
+      result.r a.r pc * b.r 1.0 pc - * + =
+      result.g a.g pc * b.g 1.0 pc - * + =
+      result.b a.b pc * b.b 1.0 pc - * + =
+      result.a a.a pc * b.a 1.0 pc - * + =
 
       result@
     }
