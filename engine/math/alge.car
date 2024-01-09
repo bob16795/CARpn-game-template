@@ -34,7 +34,7 @@ struct Vec2 {
   def proc lerp Vec2 Vec2 f32 : Vec2 {
     => pc
 
-    pc@ Vec2.mul swap 1.0 pc@ - Vec2.mul Vec2.add
+    pc Vec2.mul swap 1.0 pc - Vec2.mul Vec2.add
   }
 }
 
@@ -145,9 +145,6 @@ struct Mat4 {
 
   def proc lookAt Vec3 Vec3 Vec3 : Mat4 {
     Mat4 result
-    Vec3 up 
-    Vec3 center 
-    Vec3 eye
 
     => up
     => center
@@ -157,8 +154,8 @@ struct Mat4 {
     Vec3 s
     Vec3 u
 
-    f center@ eye@ Vec3.sub Vec3.normalize =
-    s f@ up@ Vec3.cross Vec3.normalize =
+    f center eye Vec3.sub Vec3.normalize =
+    s f@ up Vec3.cross Vec3.normalize =
     u s@ f@ Vec3.cross =
 
     result.data [0] [0] s.x@ =
