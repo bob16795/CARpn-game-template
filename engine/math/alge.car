@@ -32,9 +32,7 @@ struct Vec2 {
   }
 
   def proc lerp Vec2 Vec2 f32 : Vec2 {
-    f32 pc
-
-    pc swap =
+    => pc
 
     pc@ Vec2.mul swap 1.0 pc@ - Vec2.mul Vec2.add
   }
@@ -101,15 +99,13 @@ struct Vec3 {
 
   def proc cross Vec3 Vec3 : Vec3 {
     Vec3 result
-    Vec3 a
-    Vec3 b
 
-    a swap =
-    b swap =
+    => a
+    => b
 
-    result.x a@.y a@.z * b@.z b@.y * - =
-    result.y a@.z a@.x * b@.x b@.z * - =
-    result.z a@.x a@.y * b@.y b@.x * - =
+    result.x a.y a.z * b.z b.y * - =
+    result.y a.z a.x * b.x b.z * - =
+    result.z a.x a.y * b.y b.x * - =
 
     result@
   }
@@ -122,7 +118,7 @@ struct Vec3 {
     f32 m
     Vec3 result
 
-    result swap o=
+    result swap =
 
     m result @ Vec3.mag =
 
@@ -153,9 +149,9 @@ struct Mat4 {
     Vec3 center 
     Vec3 eye
 
-    up swap =
-    center swap =
-    eye swap =
+    => up
+    => center
+    => eye
 
     Vec3 f
     Vec3 s
