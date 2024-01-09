@@ -63,10 +63,6 @@ def proc loop : void {
   gctx@ GFXContext.clear
   pos pos@ vel@ Vec2.add =
 
-  pos.x@ 100.0 + WIDTH > if {
-    vel.x vel.x@ -1.0 * =
-  }
-
   pos.x@ 0.0 < if {
     vel.x vel.x@ -1.0 * =
   }
@@ -75,11 +71,15 @@ def proc loop : void {
     vel.y vel.y@ -1.0 * =
   }
 
-  pos.y@ 100.0 + HEIGHT > if {
+  pos.x@ 128.0 + WIDTH > if {
+    vel.x vel.x@ -1.0 * =
+  }
+
+  pos.y@ 128.0 + HEIGHT > if {
     vel.y vel.y@ -1.0 * =
   }
 
-  gspr pos.x@ pos.y@ 100.0 100.0 Rect.new gshd@ Sprite.draw
+  gspr pos.x@ pos.y@ 128.0 128.0 Rect.new gshd@ Sprite.draw
   gctx@ GFXContext.swap
 }
 
@@ -96,7 +96,7 @@ def proc main : i32 {
 
   gtex "logo.png" Texture.new =
 
-  vel 1.0 1.0 Vec2.new =
+  vel 2.0 2.0 Vec2.new =
   pos 0.0 0.0 Vec2.new =
 
   gspr 0.0 0.0 1.0 1.0 Rect.new gtex@ Sprite.new =
