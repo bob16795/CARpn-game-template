@@ -1,0 +1,8 @@
+macro ArrayList T {
+  u32 len
+  void* data
+
+  def proc append ArrayList* T : void {
+    disc disc
+  }
+}

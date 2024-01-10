@@ -1,8 +1,12 @@
 global inputInstance void*
 
+const GLFW_KEY_SPACE 32
+
+const GLFW_RELEASE 0
+const GLFW_PRESS 1
+
 struct Input {
-  Vec2 dir
-  bool shoot
+  bool done
 
   def proc instance : Input* {
     inputInstance@ Input*'
@@ -15,42 +19,18 @@ struct Input {
     => key
     => win
 
-    Vec2 adds
-
-    adds.x 0.0 =
-    adds.y 0.0 =
-
-    key 263 == if { adds.x -1.0 = }
-    key 262 == if { adds.x 1.0 = }
-    key 265 == if { adds.y -1.0 = }
-    key 264 == if { adds.y 1.0 = }
-
-    key 65 == if { adds.x -1.0 = }
-    key 68 == if { adds.x 1.0 = }
-    key 87 == if { adds.y -1.0 = }
-    key 83 == if { adds.y 1.0 = }
-
-    action 0 == if {
-      Input.instance.dir Input.instance.dir@ adds@ -1.0 Vec2.mul Vec2.add =
-
-      key 32 == if {
-        Input.instance.shoot false =
-      }
+    action GLFW_PRESS == if {
+      key GLFW_KEY_SPACE == if { Input.instance.done true = }
     }
-    action 1 == if {
-      Input.instance.dir Input.instance.dir@ adds@ Vec2.add =
-
-      key 32 == if {
-        Input.instance.shoot true =
-      }
+    action GLFW_RELEASE == if {
+      key GLFW_KEY_SPACE == if { Input.instance.done false = }
     }
   }
 
   def proc init GFXContext* : void {
     inputInstance Input.SIZE i32' malloc =
 
-    Input.instance.dir.y 0.0 =
-    Input.instance.dir.x 0.0 =
+    Input.instance.done false =
 
     .win@ (Input.keyCallback) glfwSetKeyCallback
   }

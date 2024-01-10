@@ -1,0 +1,40 @@
+extern proc printf u8$* : void
+extern proc malloc u32 : void*
+extern proc calloc u32 u32 : void*
+extern proc realloc void* u32 : void*
+extern proc free void* : void
+extern proc exit u32 : void
+extern proc memcpy void* void* i32 : i32
+
+struct mem {
+  def proc cpy u8$* u8$* i32 : void {
+    memcpy disc
+  }
+
+  def proc eql u8$* u8$* i32 : bool {
+      size sawp =
+      => a
+      => b
+
+      a @ b @ == if {
+        true ret
+      }
+
+      do {
+        size size @ 1 - =
+
+        a@ size@ [] @
+        b@ size@ [] @ != if {
+          false ret
+        }
+
+        size @ 0 >
+      }
+
+      true
+  }
+
+  def proc add void* i32 : void* {
+      swap +
+  }
+}

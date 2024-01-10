@@ -12,36 +12,13 @@ def proc getTexShaders : ShaderFile$* {
   result@[0].kind 35633 =
   result@[0].count 1 =
   result@[0].contents@ u8$**'
-  "
-precision highp float;
-attribute vec3 aVertex;
-attribute vec2 aTexCoords;
-attribute vec4 aColor;
-uniform mat4 projection;
-varying vec2 texCoords;
-varying vec4 tintColor;
-void main()
-{
-    gl_Position = projection * vec4(aVertex.xyz, 1.0);
-    texCoords = aTexCoords;
-    tintColor = aColor;
-}" =
+  embed "static/tex.vert" =
 
   result@[1].contents u8$*$*.SIZE i32' 1 calloc =
   result@[1].kind 35632 =
   result@[1].count 1 =
   result@[1].contents@ u8$**'
-  "
-precision highp float;
-
-varying vec2 texCoords;
-varying vec4 tintColor;
-
-uniform sampler2D tex;
-
-void main() {
-  gl_FragColor = tintColor * texture2D(tex, texCoords);
-}" =
+  embed "static/tex.frag" =
 
   result@
 }
@@ -51,17 +28,29 @@ const HEIGHT 480.0
 
 fntype proc loopfn : void
 extern proc emscripten_set_main_loop loopfn : void
+extern proc emscripten_cancel_main_loop : void
+extern proc emscripten_get_now : f64
 
 global gctx GFXContext*
 global gspr Sprite
 global gshd Shader*
-global gtex Texture*
+global gtex Texture
 global pos Vec2
 global vel Vec2
+global lastTime f64
+
+def proc ondone : void {
+  emscripten_cancel_main_loop
+}
 
 def proc loop : void {
+  f64 dt
+
+  dt emscripten_get_now lastTime @ - =
+  lastTime emscripten_get_now =
+
   gctx@ GFXContext.clear
-  pos pos@ vel@ Vec2.add =
+  pos pos@ vel@ dt@ f32' 1000.0 / Vec2.mul Vec2.add =
 
   pos.x@ 0.0 < if {
     vel.x vel.x@ -1.0 * =
@@ -81,6 +70,11 @@ def proc loop : void {
 
   gspr pos.x@ pos.y@ 128.0 128.0 Rect.new gshd@ Sprite.draw
   gctx@ GFXContext.swap
+
+  Input.instance.done@ if {
+    vel.x vel.x@ 1.05 * =
+    vel.y vel.y@ 1.05 * =
+  }
 }
 
 def proc main : i32 {
@@ -99,7 +93,7 @@ def proc main : i32 {
   vel 2.0 2.0 Vec2.new =
   pos 0.0 0.0 Vec2.new =
 
-  gspr 0.0 0.0 1.0 1.0 Rect.new gtex@ Sprite.new =
+  gspr 0.0 0.0 1.0 1.0 Rect.new gtex Sprite.new =
 
   (loop) emscripten_set_main_loop
 
