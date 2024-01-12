@@ -35,6 +35,7 @@ global gctx GFXContext*
 global gspr Sprite
 global gshd Shader*
 global gtex Texture
+global gsound Sound
 global pos Vec2
 global vel Vec2
 global lastTime f64
@@ -54,18 +55,26 @@ def proc loop : void {
 
   pos.x@ 0.0 < if {
     vel.x vel.x@ -1.0 * =
+    pos.x 0.0 =
+    gsound Audio.playSound
   }
   
   pos.y@ 0.0 < if {
     vel.y vel.y@ -1.0 * =
+    pos.y 0.0 =
+    gsound Audio.playSound
   }
 
   pos.x@ 128.0 + WIDTH > if {
     vel.x vel.x@ -1.0 * =
+    pos.x WIDTH f32' 128.0 - =
+    gsound Audio.playSound
   }
 
   pos.y@ 128.0 + HEIGHT > if {
     vel.y vel.y@ -1.0 * =
+    pos.y HEIGHT f32' 128.0 - =
+    gsound Audio.playSound
   }
 
   gspr pos.x@ pos.y@ 128.0 128.0 Rect.new gshd@ Sprite.draw
@@ -90,7 +99,9 @@ def proc main : i32 {
 
   gtex "logo.png" Texture.new =
 
-  vel 2.0 2.0 Vec2.new =
+  gsound "test.wav" Sound.new =
+
+  vel 25.0 25.0 Vec2.new =
   pos 0.0 0.0 Vec2.new =
 
   gspr 0.0 0.0 1.0 1.0 Rect.new gtex Sprite.new =

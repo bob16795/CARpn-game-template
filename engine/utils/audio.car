@@ -1,3 +1,5 @@
+import "std/fs.car"
+
 global audioInstance void*
 
 extern proc alcGetString void* i32 : u8$*
@@ -51,6 +53,12 @@ struct WavFile {
     fptr 2 File.seek
     fptr 4 subChunk2ID File.read
 
+    subChunk2ID "LIST" 4 memcmp 0 == if {
+      fptr 4 subChunk2Size u8$*' File.read
+      fptr subChunk2Size@ File.seek
+      fptr 4 subChunk2ID File.read
+    }
+
     fptr 4 subChunk2Size u8$*' File.read
 
     data subChunk2Size@ malloc =
@@ -62,6 +70,27 @@ struct WavFile {
     result.data data@ =
 
     fptr File.close
+
+    result@
+  }
+}
+
+struct Sound {
+  i32 length
+
+  i32 buffer
+
+  def proc new u8$* : Sound {
+    Sound result
+
+    => path
+
+    WavFile wav
+
+    wav path WavFile.parse =
+
+    1 result.buffer alGenBuffers
+    result.buffer@ AL_FORMAT_STEREO16 wav.data@ wav.size@ wav.freq@ alBufferData
 
     result@
   }
@@ -98,6 +127,7 @@ struct Audio {
 
   i32 musicSource
   i32 [30] soundSources
+  i32 soundIdx
 
   f32 volume
 
@@ -111,6 +141,19 @@ struct Audio {
     Audio.instance.musicSource@ AL_BUFFER song.loopBuffer@ alSourcei
     Audio.instance.musicSource@ AL_LOOPING 1 alSourcei
     Audio.instance.musicSource@ alSourcePlay
+  }
+
+  def proc playSound Sound* : void {
+    => sound
+
+    Audio.instance.soundIdx@ => idx
+
+    Audio.instance.soundSources idx i32' 30 % i32.SIZE * i32' + i32*' @ => source
+
+    source AL_BUFFER sound.buffer@ alSourcei
+    source alSourcePlay
+
+    Audio.instance.soundIdx idx 1 + =
   }
 
   def proc init : void {
